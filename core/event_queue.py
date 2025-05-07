@@ -7,7 +7,10 @@ class EventQueue(object):
     def __init__(self):
         self._data: Dict[float, List[SimEvent]] = dict()
 
-    def add_event(self, event: SimEvent):
+    def __len__(self):
+        return len(self._data)
+
+    def put(self, event: SimEvent):
         if event.time in self._data.keys():
             self._data[event.time].append(event)
         else:

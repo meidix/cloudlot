@@ -1,5 +1,6 @@
 from typing import Any, Optional
 from .identities import IDPool
+from .tags import SimulationTags
 
 
 class SimEvent(object):
@@ -7,7 +8,7 @@ class SimEvent(object):
         self,
         time: float,
         data: Any,
-        tag: str,
+        tag: SimulationTags,
         source_uid: str,
         destination_uid: Optional[str] = None,
     ):
@@ -47,7 +48,7 @@ class SimEntity(object):
                 pass
 
     def send(
-        self, time: float, data: Any, tag: str, destination_uid: Optional[str] = None
+        self, time: float, data: Any, tag: SimulationTags, destination_uid: Optional[str] = None
     ) -> None:
         event = SimEvent(time, data, tag, self.uid, destination_uid)
         if not hasattr(self, "_platform"):
