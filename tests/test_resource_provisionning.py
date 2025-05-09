@@ -1,15 +1,15 @@
 from core.task import Task
 from core.provisioners import ResourceProvisioner
-from core.resources import Resource
+from core.resources import ProcessingResource, MemoryResource
 
 
 class TestResourceProvisioning:
 
     def set_up(self):
         self.task = Task("Container#1", 1, 2500, 256)
-        self.cpus = [Resource(5000) for i in range(8)]
-        self.memory = Resource(31298)
-        self.provisioner = ResourceProvisioner(self.cpus, self.memory)
+        self.cpus = [ProcessingResource(5000) for i in range(8)]
+        self.memory = MemoryResource(31298)
+        self.provisioner = ResourceProvisioner(self.cpus, self.memory, 1.50)
 
     def test_single_task_allocation_works(self):
         self.set_up()
@@ -63,6 +63,28 @@ class TestResourceProvisioning:
         result = self.provisioner.allocate(task)
         assert result is True
 
-        assert self.provisioner.get_cpu_utilization() == 0.80
+        task = Task("Container#7", 1, 6000, 256)
+        self.provisioner.provision("Container#7", 5000)
+        result = self.provisioner.allocate(task)
+        assert result is True
+
+        task = Task("Container#8", 1, 4000, 256)
+        self.provisioner.provision("Container#8", 5000)
+        result = self.provisioner.allocate(task)
+        assert result is True
+
+        assert self.provisioner.get_cpu_utilization() == 0.85
+
+    def test_over_provisioning_is_limited(self):
+        self.set_up()
+        result = self.provisioner.provision("Container#2", 40000)
+        assert result is True
+
+        result = self.provisioner.provision("Container#3", 20000)
+        assert result is True
+
+        result = self.provisioner.provision("Container#4", 500)
+        assert result is False
+
 
 
