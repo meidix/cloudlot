@@ -2,7 +2,7 @@ from typing import List
 from core.entities import SimEntity
 from core.mixins import SchedulerAccessMixin
 
-from .tags import ClientTags
+from .tags import ServerlessSimulationTags
 from .request import ServerlessRequest
 
 
@@ -16,4 +16,4 @@ class Client(SimEntity, SchedulerAccessMixin):
     def start_entity(self):
         scheduler = self.get_scheduler()
         for request in self.request_list:
-            self.send(request.arrival_time, request, ClientTags.SCHEDULE_INVOCATION, scheduler.uid)
+            self.send(request.arrival_time, request, ServerlessSimulationTags.SCHEDULE_INVOCATION, scheduler.uid)

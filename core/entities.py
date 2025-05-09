@@ -1,4 +1,6 @@
-from typing import Any, Optional
+from typing import Any, Optional, Dict, Union, List
+from core.resources import Resource
+from .provisioners import ResourceProvisioner
 from .identities import IDPool
 from .tags import SimulationTags
 
@@ -54,4 +56,13 @@ class SimEntity(object):
         if not hasattr(self, "_platform"):
             raise Exception(f"Entity Not registrered: {self.uid}")
         self._platform.add_event(event)
+
+
+class ResourcedSimEntity(SimEntity):
+
+    def get_available_cpu(self):
+        return self.cpu_provisioner.get_total_available_capacity()
+
+    def get_available_ram(self):
+        pass
 

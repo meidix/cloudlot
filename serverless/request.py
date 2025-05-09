@@ -10,3 +10,7 @@ class ServerlessRequest:
     cores: int
     container_mips: int
     container_ram: int
+
+    @property
+    def ram(self):
+        return self.container_ram

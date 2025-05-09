@@ -3,19 +3,13 @@ from typing import List, Dict, Union
 import settings
 from .event_queue import EventQueue
 from .entities import SimEntity, SimEvent
+from .base import Singleton
 
-
-class Singleton(type):
-    _instances = {}
-
-    def __call__(cls, *args, **kwargs):
-        if cls not in cls._instances:
-            cls._instances[cls] = super(Singleton, cls).__call__(*args, **kwargs)
-        return cls._instances[cls]
 
 
 class Simulator(metaclass=Singleton):
-    _clock: float = 0
+    clock: float = 0
+
 
     def __str__(self):
         return self.simulation_name
@@ -29,7 +23,7 @@ class Simulator(metaclass=Singleton):
 
     @property
     def current_time(self):
-        return self._clock
+        return self.clock
 
     def get_entity(self, lookup: str) -> Union[SimEntity, List[SimEntity]]:
         pattern = r"\b[A-Z][a-zA-Z0-9]*#\d+\b"
@@ -53,18 +47,18 @@ class Simulator(metaclass=Singleton):
             self._entities[key] = [entity]
         self._entities_uid_map[entity.uid] = entity
 
-    def clock(self):
-        self._clock += settings.SIMULATOR_CLOCK_STEP
+    def tick(self):
+        self.clock += settings.SIMULATOR_CLOCK_STEP
 
     def start(self):
         for _, entity in self._entities_uid_map.items():
             entity.start_entity()
 
     def run(self) -> None:
-        if self.current_time == self.limit or len(self._queue) == 0:
+        if self.clock == self.limit or len(self._queue) == 0:
             return self.terminate_simulation()
-        self.clock()
-        events = self._queue.get_next(self.current_time)
+        self.tick()
+        events = self._queue.get_next(self.clock)
         for event in events:
             destination = self.get_entity(event.destination)
             destination.process_event(event)
@@ -78,4 +72,3 @@ class Simulator(metaclass=Singleton):
     def register(self, entity: SimEntity):
         entity._platform = self
         self.add_entity(entity)
-
